@@ -1,0 +1,51 @@
+.tile{
+    width:100px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+}
+.white-tile{
+    background-color: #ebecd0;
+}
+.black-tile{
+    background-color: #779556;
+}
+.top{
+    display: flex;
+    height: 50%;
+    align-items: flex-start;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: large;
+    font-weight: bold;
+    padding-left:8px;
+    padding-top:3px;
+}
+.bottom{
+    display: flex;
+    height:50%;
+    align-items:flex-end;
+    justify-content: flex-end;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: large;
+    font-weight: bold;
+    padding-right:8px;
+    padding-bottom:3px;
+}
+
+.white-text{
+    color: #ebecd0;
+}
+.black-text{
+    color:#779556;
+}
+.chess-piece{
+    width: 100px;
+    height: 100px;
+}
+
+.chess-piece:hover{
+    cursor:grab;
+}
+.chess-piece:active{
+    cursor:grabbing;
+}

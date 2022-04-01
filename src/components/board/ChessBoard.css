@@ -1,0 +1,24 @@
+.board{
+    background-color: green;
+    min-width: 800px;
+    min-height: 800px;
+    width: 800px;
+    height: 800px;
+    display: flex;
+    flex-wrap: wrap;
+}
+.reset{
+    width: 80px;
+    height:50px;
+    color: white;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.container{
+    display: flex;
+    align-items: center;
+}
+
