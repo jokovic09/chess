@@ -153,10 +153,10 @@ import { useMessageHook } from '../../hooks/message'
           if(check){
             mate = rules.ifMate(pieces, team, turn)
             if(mate){
-              setMessage('Mat!!!')
+              setMessage('Mate!!!')
               setPlaying(false)
             }else{
-              setMessage('Sah!!!')
+              setMessage('Check!!!')
             }
           }else{
             pat = rules.ifPat(pieces, team, turn);
@@ -239,9 +239,25 @@ import { useMessageHook } from '../../hooks/message'
       {board}
     </div>
     <div className='counters'>
-      <Counter turn={blackTurn} reset={resetTime} opponentTeam={'White'} setMessage={setMessage} playing={playing} setPlaying={setPlaying}/>
+      <Counter 
+      turn={blackTurn} 
+      reset={resetTime} 
+      opponentTeam={'White'} 
+      setMessage={setMessage} 
+      playing={playing} 
+      setPlaying={setPlaying}
+      image={"./images/king_black.png"}
+      />
       <div className='message'>{message}</div>
-      <Counter turn={whiteTurn} reset={resetTime} opponentTeam={'Black'} setMessage={setMessage} playing={playing} setPlaying={setPlaying}/>
+      <Counter 
+      turn={whiteTurn} 
+      reset={resetTime} 
+      opponentTeam={'Black'} 
+      setMessage={setMessage} 
+      playing={playing} 
+      setPlaying={setPlaying}
+      image={"./images/king_white.png"}
+      />
     </div>
     </div>
   

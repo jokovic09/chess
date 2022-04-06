@@ -8,7 +8,8 @@ export const Counter = (props) => {
     opponentTeam,
     playing,
     setMessage,
-    setPlaying
+    setPlaying,
+    image
   } = props
   
     
@@ -49,6 +50,9 @@ export const Counter = (props) => {
     }
 
   return (
+  <div className='timer'>
+    <div className='image' style={{"backgroundImage": `url(${image})`}}></div>
     <div className='counter'>{minutes}:{zero}{seconds}</div>
+  </div>
   )
 }

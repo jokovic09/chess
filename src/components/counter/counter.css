@@ -8,3 +8,13 @@
     font-size: 40px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
+.timer{
+    display: flex;
+    height:60px;
+}
+.image{
+    height: 60px;
+    width: 60px;
+    padding-right: 5px;
+    background-size: contain;
+}
