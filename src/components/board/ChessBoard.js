@@ -1,7 +1,9 @@
-import React, {  useRef, useState } from 'react'
+import React, {  useEffect, useRef, useState } from 'react'
 import { Tile } from '../Tile/Tile'
 import "./ChessBoard.css"
 import Rules from "../../rules/Rules"
+import { Counter } from '../counter/Counter'
+import { useMessageHook } from '../../hooks/message'
 
   const vertical = [1,2,3,4,5,6,7,8]
   const horizontal = ['a','b','c','d','e','f','g','h']
@@ -10,37 +12,37 @@ import Rules from "../../rules/Rules"
     x:4,
     y:7,
     type: 'king',
-    team: 'opponent'
+    team: 'black'
   },
   {
     image:"./images/king_white.png",
     x:4,
     y:0,
     type: 'king',
-    team: 'our'
+    team: 'white'
   },
   {
     image:"./images/queen_white.png",
     x:3,
     y:0,
     type: 'queen',
-    team: 'our'
+    team: 'white'
   },
   {
     image:"./images/rook_white.png",
     x:0,
     y:0,
     type: 'rook',
-    team: 'our'
+    team: 'white'
   }]
 
-  const game = {
-    ongoing: true,
-    check: false,
-    mate: false,
-    pat: false,
-    remi: false
-  }
+  // const game = {
+  //   ongoing: true,
+  //   check: false,
+  //   mate: false,
+  //   pat: false,
+  //   remi: false,
+  // }
 
   export const ChessBoard = () => {
   const [turn,setTurn] = useState(true)
@@ -48,19 +50,27 @@ import Rules from "../../rules/Rules"
   const [gridX,setGridX] = useState(0)
   const [gridY,setGridY] = useState(0)
   const [pieces,setPieces] = useState(JSON.parse(JSON.stringify(initialState)))
-  const [gameState, setGameState] = useState(JSON.parse(JSON.stringify(game)))
+  //const [gameState, setGameState] = useState(JSON.parse(JSON.stringify(game)))
+  const [playing, setPlaying] = useState(true)
+  const [whiteTurn,setWhiteTurn] = useState(true)
+  const [blackTurn, setBlackTurn] = useState(false)
+  const [resetTime, setResetTime] = useState(true)
+  const [team, setTeam] = useState('white')
+  const [message, setMessage, clear] = useMessageHook('')
+  //
   const chessboardRef = useRef(null)
   const rules = new Rules();
-
-const board =[];
+  const board =[];
 
   function reset(){
       setTurn(true)
       setPieces(JSON.parse(JSON.stringify(initialState)))
-      setGameState(JSON.parse(JSON.stringify(game)))
-    
+      //setGameState(JSON.parse(JSON.stringify(game)))
+      setPlaying(true)
+      setResetTime(!resetTime)
+      clear()
   }
-
+  //setMessage('rest')
   function grabPiece(e){
     const element = e.target;
     const chessboard = chessboardRef.current;
@@ -116,14 +126,18 @@ const board =[];
       //const attackedPiece = pieces.find(p=> p.x === x && p.y === y)
       let validMove;
       if(currentPiece){
-        
-        if(currentPiece.type !=='king'){
-        validMove = rules.isValidMove(gridX, gridY, x, y, currentPiece.type, currentPiece.team, pieces, turn,false,false)
+        if(!playing){
+          validMove=false;
         }else{
-        validMove = rules.isValidForKing(gridX, gridY, x, y, currentPiece.team, pieces, turn, gameState)
+          if(currentPiece.type !=='king'){
+          validMove = rules.isValidMove(gridX, gridY, x, y, currentPiece.type, team, pieces, turn,false,false)
+          }else{
+          validMove = rules.isValidForKing(gridX, gridY, x, y, team, pieces, turn)
+          }
         }
         
         if(validMove){
+          setMessage('')
         const updatedPieces = pieces.reduce((results, piece)=>{
           if(piece.x === gridX && piece.y===gridY){
             piece.x = x;
@@ -132,7 +146,25 @@ const board =[];
           }else if(!(piece.x === x && piece.y === y)){
             results.push(piece)
           }
-          rules.ifCheck(pieces, currentPiece.team, turn, gameState)
+          let check = rules.ifCheck(pieces, team, turn)
+          //console.log(check)
+          let mate;
+          let pat;
+          if(check){
+            mate = rules.ifMate(pieces, team, turn)
+            if(mate){
+              setMessage('Mat!!!')
+              setPlaying(false)
+            }else{
+              setMessage('Sah!!!')
+            }
+          }else{
+            pat = rules.ifPat(pieces, team, turn);
+            if(pat){
+              setMessage('Pat!!!')
+              setPlaying(false)
+            }
+          }
           return results;
         },[])
 
@@ -168,12 +200,33 @@ const board =[];
       }
     }
   
-  if(pieces.length===2){
-    console.log("Remi")
-  }
+  
     
 
+  useEffect(()=>{
+    if(pieces.length===2){
+      setMessage('Remi!!!')
+      setPlaying(false)
 
+    }
+  },[pieces])
+
+  useEffect(()=>{
+    
+      if (turn) {
+        setWhiteTurn(true)
+        setTeam('white') 
+        setBlackTurn(false)
+      }else{
+        setWhiteTurn(false)
+        setTeam('black') 
+        setBlackTurn(true)
+      }  
+    
+    
+ 
+  },[turn])
+  
   return (
     <div className='container'>
       <button className="reset" onClick={reset} >RESET</button>
@@ -184,6 +237,11 @@ const board =[];
     ref={chessboardRef}
     className='board'>
       {board}
+    </div>
+    <div className='counters'>
+      <Counter turn={blackTurn} reset={resetTime} opponentTeam={'White'} setMessage={setMessage} playing={playing} setPlaying={setPlaying}/>
+      <div className='message'>{message}</div>
+      <Counter turn={whiteTurn} reset={resetTime} opponentTeam={'Black'} setMessage={setMessage} playing={playing} setPlaying={setPlaying}/>
     </div>
     </div>
   
