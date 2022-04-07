@@ -1,10 +1,10 @@
 export default class Rules {
-    tileIsOccupied(x, y, boardState, team, pass) {
+    tileIsOccupied(x, y, boardState, pieceTeam, pass) {
         let piece;
         if (pass) {
-            piece = boardState.find(p => p.x === x && p.y === y && !(p.type === 'king' && p.team === team))
+            piece = boardState.find(p => p.x === x && p.y === y && !(p.type === 'king' && p.team === pieceTeam))
         } else {
-            piece = boardState.find(p => p.x === x && p.y === y && !(p.type === 'king' && p.team !== team))
+            piece = boardState.find(p => p.x === x && p.y === y && !(p.type === 'king' && p.team !== pieceTeam))
         }
         if (piece) {
             return true
@@ -13,23 +13,23 @@ export default class Rules {
         }
     }
 
-    tileIsOccupiedbyOpponent(x, y, boardState, team) {
-        const piece = boardState.find(p => p.x === x && p.y === y && p.team !== team)
+    tileIsOccupiedbyOpponent(x, y, boardState, pieceTeam) {
+        const piece = boardState.find(p => p.x === x && p.y === y && p.team !== pieceTeam)
         if (piece) {
             return true
         } else {
             return false
         }
     }
-    ifCheck(boardState, team, turn) {
+    ifCheck(boardState, pieceTeam,team) {
         let check = false;
         boardState.forEach(p => {
-            if (p.team === team) {
+            if (p.team === pieceTeam) {
                 for (let x = 0; x <= 7; x++) {
                     for (let y = 0; y <= 7; y++) {
-                        if (this.isValidMove(p.x, p.y, x, y, p.type, p.team, boardState, turn, true)) {
+                        if (this.isValidMove(p.x, p.y, x, y, p.type, p.team,team, boardState)) {
                             boardState.forEach(p => {
-                                if (p.team !== team && p.x === x && p.y === y && p.type === 'king') {
+                                if (p.team !== pieceTeam && p.x === x && p.y === y && p.type === 'king') {
                                     check = true
                                     return check
                                 }
@@ -43,19 +43,19 @@ export default class Rules {
     }
 
 
-    ifMate(boardState, team, turn) {
+    ifMate(boardState, pieceTeam,team) {
         let king;
         let mate = false;
         boardState.forEach(p => {
-            if (p.type === 'king' && p.team !== team) {
+            if (p.type === 'king' && p.team !== pieceTeam) {
                 //GLEDANJE KRALJEVIH MJESTA I JELI MAT
                 king = p;
                 let kingAvailable = []
                 for (let x = 0; x <= 7; x++) {
                     for (let y = 0; y <= 7; y++) {
                         if (Math.abs(king.x - x) <= 1 && Math.abs(king.y - y) <= 1
-                            && (!this.tileIsOccupied(x, y, boardState, team)
-                                || this.tileIsOccupiedbyOpponent(x, y, boardState, team))) {
+                            && (!this.tileIsOccupied(x, y, boardState, pieceTeam)
+                                || this.tileIsOccupiedbyOpponent(x, y, boardState, pieceTeam))) {
                             kingAvailable.push({
                                 x: x,
                                 y: y
@@ -69,7 +69,7 @@ export default class Rules {
                     if (p.team !== king.team) {
                         for (let x = 0; x <= 7; x++) {
                             for (let y = 0; y <= 7; y++) {
-                                if (this.isValidMove(p.x, p.y, x, y, p.type, 'black', boardState, turn, true)) {
+                                if (this.isValidMove(p.x, p.y, x, y, p.type, "black", team, boardState, true)) {
                                     arr.push({
                                         x: x,
                                         y: y
@@ -80,6 +80,9 @@ export default class Rules {
                     }
                 })
                 kingAvailable = kingAvailable.filter(ar => !arr.find(rm => (rm.x === ar.x && ar.y === rm.y)))
+                console.log(kingAvailable)
+                // kingAvailable = kingAvailable.filter(ar => !(ar.x === king.x && ar.y === king.y))
+                // console.log(kingAvailable)
                 if (kingAvailable.length === 0) {
                     mate = true;
                     return mate
@@ -89,19 +92,19 @@ export default class Rules {
         return mate
     }
 
-    ifPat(boardState, team, turn) {
+    ifPat(boardState, pieceTeam,team) {
         let king;
         let pat = false;
         boardState.forEach(p => {
-            if (p.type === 'king' && p.team !== team) {
+            if (p.type === 'king' && p.team !== pieceTeam) {
                 //GLEDANJE KRALJEVIH MJESTA
                 king = p;
                 let kingAvailable = []
                 for (let x = 0; x <= 7; x++) {
                     for (let y = 0; y <= 7; y++) {
                         if (Math.abs(king.x - x) <= 1 && Math.abs(king.y - y) <= 1
-                            && (!this.tileIsOccupied(x, y, boardState, team)
-                                || this.tileIsOccupiedbyOpponent(x, y, boardState, team))) {
+                            && (!this.tileIsOccupied(x, y, boardState, pieceTeam)
+                                || this.tileIsOccupiedbyOpponent(x, y, boardState, pieceTeam))) {
                             kingAvailable.push({
                                 x: x,
                                 y: y
@@ -115,7 +118,7 @@ export default class Rules {
                     if (p.team !== king.team) {
                         for (let x = 0; x <= 7; x++) {
                             for (let y = 0; y <= 7; y++) {
-                                if (this.isValidMove(p.x, p.y, x, y, p.type, 'opponent', boardState, turn, true)) {
+                                if (this.isValidMove(p.x, p.y, x, y, p.type, pieceTeam,team, boardState, true)) {
                                     arr.push({
                                         x: x,
                                         y: y
@@ -137,18 +140,14 @@ export default class Rules {
         return pat
     }
 
-    isValidMove(px, py, x, y, type, team, boardState, turn, pass) {
+    isValidMove(px, py, x, y, type,pieceTeam, team, boardState, pass) {
+///vidi ono za mat jedno polje sto viri 
+
         if (!pass) {
-            if (turn) {
-                if (team === 'opponent') {
-                    return false
-                }
-            } else if (!turn) {
-                if (team === 'our') {
-                    return false
-                }
-            }
+            if (pieceTeam !== team) {
+            return false
         }
+    }
 
         if (px === x && py === y) {
             return false
@@ -156,17 +155,17 @@ export default class Rules {
 
         if (type === 'rook') {
             if (x === px || y === py) {
-                if (!this.tileIsOccupied(x, y, boardState, team, pass) || this.tileIsOccupiedbyOpponent(x, y, boardState, team)) {
+                if (!this.tileIsOccupied(x, y, boardState, pieceTeam, pass) || this.tileIsOccupiedbyOpponent(x, y, boardState, pieceTeam)) {
                     if (y === py) {
                         if (px > x) {
                             for (let i = px - 1; i > x; i--) {
-                                if (this.tileIsOccupied(i, y, boardState, team, pass)) {
+                                if (this.tileIsOccupied(i, y, boardState, pieceTeam, pass)) {
                                     return false;
                                 }
                             }
                         } else if (px < x) {
                             for (let i = x - 1; i > px; i--) {
-                                if (this.tileIsOccupied(i, y, boardState, team, pass)) {
+                                if (this.tileIsOccupied(i, y, boardState, pieceTeam, pass)) {
                                     return false
                                 }
                             }
@@ -174,13 +173,13 @@ export default class Rules {
                     } else if (x === px) {
                         if (py > y) {
                             for (let i = py - 1; i > y; i--) {
-                                if (this.tileIsOccupied(x, i, boardState, team, pass)) {
+                                if (this.tileIsOccupied(x, i, boardState, pieceTeam, pass)) {
                                     return false;
                                 }
                             }
                         } else if (py < y) {
                             for (let i = y - 1; i > py; i--) {
-                                if (this.tileIsOccupied(x, i, boardState, team, pass)) {
+                                if (this.tileIsOccupied(x, i, boardState, pieceTeam, pass)) {
                                     return false
                                 }
                             }
@@ -194,17 +193,17 @@ export default class Rules {
         } else if (type === 'queen') {
 
             if (x === px || y === py || (Math.abs(px - x) === Math.abs(py - y))) {
-                if (!this.tileIsOccupied(x, y, boardState, team, pass) || this.tileIsOccupiedbyOpponent(x, y, boardState, team)) {
+                if (!this.tileIsOccupied(x, y, boardState, pieceTeam, pass) || this.tileIsOccupiedbyOpponent(x, y, boardState, pieceTeam)) {
                     if (y === py) {
                         if (px > x) {
                             for (let i = px - 1; i > x; i--) {
-                                if (this.tileIsOccupied(i, y, boardState, team, pass)) {
+                                if (this.tileIsOccupied(i, y, boardState, pieceTeam, pass)) {
                                     return false;
                                 }
                             }
                         } else if (px < x) {
                             for (let i = x - 1; i > px; i--) {
-                                if (this.tileIsOccupied(i, y, boardState, team, pass)) {
+                                if (this.tileIsOccupied(i, y, boardState, pieceTeam, pass)) {
                                     return false
                                 }
                             }
@@ -212,13 +211,13 @@ export default class Rules {
                     } else if (x === px) {
                         if (py > y) {
                             for (let i = py - 1; i > y; i--) {
-                                if (this.tileIsOccupied(x, i, boardState, team, pass)) {
+                                if (this.tileIsOccupied(x, i, boardState, pieceTeam, pass)) {
                                     return false;
                                 }
                             }
                         } else if (py < y) {
                             for (let i = y - 1; i > py; i--) {
-                                if (this.tileIsOccupied(x, i, boardState, team, pass)) {
+                                if (this.tileIsOccupied(x, i, boardState, pieceTeam, pass)) {
                                     return false
                                 }
                             }
@@ -227,7 +226,7 @@ export default class Rules {
                         let j = y;
                         for (let i = x - 1; i > px; i--) {
                             j--;
-                            if (this.tileIsOccupied(i, j, boardState, team, pass)) {
+                            if (this.tileIsOccupied(i, j, boardState, pieceTeam, pass)) {
                                 return false;
                             }
                         }
@@ -235,7 +234,7 @@ export default class Rules {
                         let j = y;
                         for (let i = x - 1; i > px; i--) {
                             j++;
-                            if (this.tileIsOccupied(i, j, boardState, team, pass)) {
+                            if (this.tileIsOccupied(i, j, boardState, pieceTeam, pass)) {
                                 return false;
                             }
                         }
@@ -243,7 +242,7 @@ export default class Rules {
                         let j = x;
                         for (let i = y - 1; i > py; i--) {
                             j++;
-                            if (this.tileIsOccupied(j, i, boardState, team, pass)) {
+                            if (this.tileIsOccupied(j, i, boardState, pieceTeam, pass)) {
                                 return false;
                             }
                         }
@@ -251,7 +250,7 @@ export default class Rules {
                         let j = x;
                         for (let i = y + 1; i < py; i++) {
                             j++;
-                            if (this.tileIsOccupied(j, i, boardState, team, pass)) {
+                            if (this.tileIsOccupied(j, i, boardState, pieceTeam, pass)) {
                                 return false;
                             }
                         }
@@ -270,7 +269,10 @@ export default class Rules {
         return false
     }
 
-    isValidForKing(px, py, x, y, team, boardState, turn) {
+    isValidForKing(px, py, x, y,pieceTeam, team, boardState) {
+        if(pieceTeam !== team){
+            return false
+        }
 
         if (px === x && py === y) {
             return false
@@ -280,8 +282,8 @@ export default class Rules {
         for (let x = 0; x <= 7; x++) {
             for (let y = 0; y <= 7; y++) {
                 if (Math.abs(px - x) <= 1 && Math.abs(py - y) <= 1
-                    && (!this.tileIsOccupied(x, y, boardState, team)
-                        || this.tileIsOccupiedbyOpponent(x, y, boardState, team))) {
+                    && (!this.tileIsOccupied(x, y, boardState, pieceTeam)
+                        || this.tileIsOccupiedbyOpponent(x, y, boardState, pieceTeam))) {
                     kingAvailable.push({
                         x: x,
                         y: y
@@ -292,11 +294,12 @@ export default class Rules {
 
         let arr = [];
         boardState.forEach(p => {
-            if (p.team !== team) {
+           // if (p.team !== team) {
+            if (p.team !== pieceTeam) {
                 for (let x = 0; x <= 7; x++) {
                     for (let y = 0; y <= 7; y++) {
-                        // zasto ovo opponent radi kad sam promijenio na white i black??
-                        if (this.isValidMove(p.x, p.y, x, y, p.type, 'opponent', boardState, turn, true)) {
+                        // zasto ovo opponent radi kad sam promijenio na white i black?? umesto pieceteam mozda treba 'black'
+                        if (this.isValidMove(p.x, p.y, x, y, p.type, pieceTeam,team, boardState, true)) {
                             arr.push({
                                 x: x,
                                 y: y

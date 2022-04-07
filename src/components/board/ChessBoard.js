@@ -130,9 +130,9 @@ export const ChessBoard = () => {
           validMove = false;
         } else {
           if (currentPiece.type !== 'king') {
-            validMove = rules.isValidMove(gridX, gridY, x, y, currentPiece.type, team, pieces, turn, false, false)
+            validMove = rules.isValidMove(gridX, gridY, x, y, currentPiece.type,currentPiece.team, team, pieces, false, false)
           } else {
-            validMove = rules.isValidForKing(gridX, gridY, x, y, team, pieces, turn)
+            validMove = rules.isValidForKing(gridX, gridY, x, y,currentPiece.team, team, pieces)
           }
         }
 
@@ -146,12 +146,12 @@ export const ChessBoard = () => {
             } else if (!(piece.x === x && piece.y === y)) {
               results.push(piece)
             }
-            let check = rules.ifCheck(pieces, team, turn)
+            let check = rules.ifCheck(pieces, currentPiece.team,team)
             //console.log(check)
             let mate;
             let pat;
             if (check) {
-              mate = rules.ifMate(pieces, team, turn)
+              mate = rules.ifMate(pieces, currentPiece.team,team)
               if (mate) {
                 setMessage('Mate!!!')
                 setPlaying(false)
@@ -159,7 +159,7 @@ export const ChessBoard = () => {
                 setMessage('Check!!!')
               }
             } else {
-              pat = rules.ifPat(pieces, team, turn);
+              pat = rules.ifPat(pieces, currentPiece.team,team);
               if (pat) {
                 setMessage('Pat!!!')
                 setPlaying(false)
