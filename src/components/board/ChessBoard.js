@@ -146,27 +146,33 @@ export const ChessBoard = () => {
             } else if (!(piece.x === x && piece.y === y)) {
               results.push(piece)
             }
+            
+            return results;
+          }, [])
+
+          if(validMove){
             let check = rules.ifCheck(pieces, currentPiece.team,team)
-            //console.log(check)
             let mate;
             let pat;
             if (check) {
               mate = rules.ifMate(pieces, currentPiece.team,team)
               if (mate) {
                 setMessage('Mate!!!')
+                console.log('mate')
                 setPlaying(false)
               } else {
                 setMessage('Check!!!')
+                console.log('check')
               }
-            } else {
+            }else {
               pat = rules.ifPat(pieces, currentPiece.team,team);
               if (pat) {
                 setMessage('Pat!!!')
+                console.log('pat')
                 setPlaying(false)
               }
             }
-            return results;
-          }, [])
+          }
 
           setPieces(updatedPieces)
           setTurn(!turn)

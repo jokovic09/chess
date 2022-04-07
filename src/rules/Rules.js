@@ -54,8 +54,8 @@ export default class Rules {
                 for (let x = 0; x <= 7; x++) {
                     for (let y = 0; y <= 7; y++) {
                         if (Math.abs(king.x - x) <= 1 && Math.abs(king.y - y) <= 1
-                            && (!this.tileIsOccupied(x, y, boardState, pieceTeam)
-                                || this.tileIsOccupiedbyOpponent(x, y, boardState, pieceTeam))) {
+                            && (!this.tileIsOccupied(x, y, boardState, king.team)//bilo pieceTeam umesto king.team
+                                || this.tileIsOccupiedbyOpponent(x, y, boardState, king.team))) {//bilo pieceTeam umesto king.team
                             kingAvailable.push({
                                 x: x,
                                 y: y
@@ -80,9 +80,7 @@ export default class Rules {
                     }
                 })
                 kingAvailable = kingAvailable.filter(ar => !arr.find(rm => (rm.x === ar.x && ar.y === rm.y)))
-                console.log(kingAvailable)
                 // kingAvailable = kingAvailable.filter(ar => !(ar.x === king.x && ar.y === king.y))
-                // console.log(kingAvailable)
                 if (kingAvailable.length === 0) {
                     mate = true;
                     return mate
@@ -103,8 +101,8 @@ export default class Rules {
                 for (let x = 0; x <= 7; x++) {
                     for (let y = 0; y <= 7; y++) {
                         if (Math.abs(king.x - x) <= 1 && Math.abs(king.y - y) <= 1
-                            && (!this.tileIsOccupied(x, y, boardState, pieceTeam)
-                                || this.tileIsOccupiedbyOpponent(x, y, boardState, pieceTeam))) {
+                            && (!this.tileIsOccupied(x, y, boardState, king.team)// king.team je bio pieceteam
+                                || this.tileIsOccupiedbyOpponent(x, y, boardState, king.team))) { //king.team je bio piece.team
                             kingAvailable.push({
                                 x: x,
                                 y: y
@@ -129,8 +127,7 @@ export default class Rules {
                     }
                 })
                 kingAvailable = kingAvailable.filter(ar => !arr.find(rm => (rm.x === ar.x && ar.y === rm.y)))
-                kingAvailable = kingAvailable.filter(ar => !(ar.x === king.x && ar.y === king.y))
-
+                //kingAvailable = kingAvailable.filter(ar => !(ar.x === king.x && ar.y === king.y))
                 if (kingAvailable.length === 0) {
                     pat = true;
                     return pat
@@ -141,8 +138,6 @@ export default class Rules {
     }
 
     isValidMove(px, py, x, y, type,pieceTeam, team, boardState, pass) {
-///vidi ono za mat jedno polje sto viri 
-
         if (!pass) {
             if (pieceTeam !== team) {
             return false
@@ -298,7 +293,7 @@ export default class Rules {
             if (p.team !== pieceTeam) {
                 for (let x = 0; x <= 7; x++) {
                     for (let y = 0; y <= 7; y++) {
-                        // zasto ovo opponent radi kad sam promijenio na white i black?? umesto pieceteam mozda treba 'black'
+                        //prva promjena iz 'black' u piece team
                         if (this.isValidMove(p.x, p.y, x, y, p.type, pieceTeam,team, boardState, true)) {
                             arr.push({
                                 x: x,
